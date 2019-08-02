@@ -4,8 +4,26 @@ import re
 num_re = re.compile('[0-9]+')
 hist_keys = ['5-Star', '4-Star', '3-Star', '2-Star', '1-Star']
 
+## Get all the App Data into one object
+def get_app_data(app_soup):
+    app_features = {}
+    app_features['app_name'] = get_app_name(app_soup)
+    app_features['app_rating'] = get_app_rating(app_soup)
+    app_features['app_description'] = get_app_description(app_soup)
+    app_features['privacy_policy'] = get_app_privacy_policy(app_soup)
+    app_features['info_fields'] = get_app_info_fields_dict(app_soup)
+    app_features['ratings_hist'] = get_app_ratings_histogram(app_soup)
+
+    return app_features
+
+
+
+
 def get_app_name(app_store_soup):
-    return app_store_soup.find('h1').text.strip().split('\n')[0]
+    try:
+        return app_store_soup.find('h1').text.strip().split('\n')[0]
+    except:
+        return float('nan')
 
 def get_app_rating(app_store_soup):
     try:
@@ -14,7 +32,10 @@ def get_app_rating(app_store_soup):
         return float('nan')
 
 def get_app_description(app_store_soup):
-    return app_store_soup.find('h2', text='Description').parent.find('p').get_text()
+    try:
+        return app_store_soup.find('h2', text='Description').parent.find('p').get_text()
+    except:
+        return float('nan')
 
 def get_app_privacy_policy(app_store_soup):
     return app_store_soup.find('a', text='Privacy Policy')['href']

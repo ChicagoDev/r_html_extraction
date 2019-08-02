@@ -1,16 +1,25 @@
 from appstore_dom_selectors import *
 from bs4 import BeautifulSoup
+import os, sys
 import pprint
+import pyreadr
 
-finra_app_soup = BeautifulSoup(open('html/finra7.html'), 'lxml')
+## Allocate variable for app data
+apps = []
+# or df?
 
-app_features = {}
+## Get the documents
 
-app_features['app_name'] = get_app_name(finra_app_soup)
-app_features['app_rating'] = get_app_rating(finra_app_soup)
-app_features['app_description'] = get_app_description(finra_app_soup)
-app_features['privacy_policy'] = get_app_privacy_policy(finra_app_soup)
-app_features['info_fields'] = get_app_info_fields_dict(finra_app_soup)
-app_features['ratings_hist'] = get_app_ratings_histogram(finra_app_soup)
+for filename in os.listdir('/Users/bjg/r_html/rds_input'):
 
-pprint.pprint(app_features)
+    file = os.path.abspath(os.path.join('rds_input', filename))
+    app_rds = pyreadr.read_r(file)
+    app_df = app_rds[None]
+    app_html = app_df.iloc[0,0]
+    app_soup = BeautifulSoup(app_html, 'lxml')
+
+    pprint.pprint(get_app_data(app_soup))
+
+
+
+
