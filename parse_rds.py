@@ -70,14 +70,6 @@ for root, dirs, files in os.walk(rds_directory_full_path):
 
 tsv_outfile.close()
 
-with open('output/app_information.tsv', 'w') as tsvfile:
-
-    writer = csv.DictWriter(tsvfile, fieldnames=fieldnames, delimiter='\t')
-    writer.writeheader()
-
-    for app in apps:
-        writer.writerow(app)
-
 
 
 
