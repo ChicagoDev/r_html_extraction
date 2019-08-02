@@ -32,7 +32,7 @@ for root, dirs, files in os.walk(rds_directory_full_path):
 
 fieldnames = list(apps[0].keys())
 
-with open('output/first_output.tsv', 'w') as tsvfile:
+with open('output/app_information.tsv', 'w') as tsvfile:
 
     writer = csv.DictWriter(tsvfile, fieldnames=fieldnames, delimiter='\t')
     writer.writeheader()
