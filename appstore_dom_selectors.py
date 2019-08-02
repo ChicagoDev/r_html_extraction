@@ -2,7 +2,8 @@ from bs4 import BeautifulSoup, Tag
 import re
 
 num_re = re.compile('[0-9]+')
-hist_keys = ['5-Star', '4-Star', '3-Star', '2-Star', '1-Star']
+hist_keys = ['percent_5_star', 'percent_4_star', 'percent_3_star', 'percent_2_star', 'percent_1_star']
+hist_nans = [float('nan') for _ in range(4)]
 
 ## Get all the App Data into one object
 def get_app_data(app_soup):
@@ -11,8 +12,12 @@ def get_app_data(app_soup):
     app_features['app_rating'] = get_app_rating(app_soup)
     app_features['app_description'] = get_app_description(app_soup)
     app_features['privacy_policy'] = get_app_privacy_policy(app_soup)
-    app_features['info_fields'] = get_app_info_fields_dict(app_soup)
-    app_features['ratings_hist'] = get_app_ratings_histogram(app_soup)
+
+    for k, v in get_app_ratings_histogram(app_soup).items():
+        app_features[k] = v
+
+    for k, v in get_app_info_fields_dict(app_soup).items():
+        app_features[k] = v
 
     return app_features
 
@@ -58,7 +63,7 @@ def get_app_ratings_histogram(app_store_soup):
         return dict(zip(hist_keys, star_rating_percentages))
 
     except:
-        return float('nan')
+        return dict(zip(hist_keys, hist_nans))
 
 def are_tags(potential_tags):
     return [_ if type(_) is Tag else None for _ in potential_tags]
