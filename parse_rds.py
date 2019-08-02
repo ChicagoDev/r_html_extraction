@@ -6,31 +6,28 @@ import pyreadr
 import csv
 import logging
 
+rds_directory_full_path = '/Users/bjg/r_html/rds_input'
+
+rds_directory = rds_directory_full_path.split('/')[-1]
 logging.basicConfig(filename='logs/log.txt', level=logging.DEBUG)
 
 ## Allocate list to hold all app's data
 ## Should chunk this?
 apps = []
 
-## Get the documents
-## Loop through the directory of RDS files
-for filename in os.listdir('/Users/bjg/r_html/rds_input'):
+## Configure The Batch
+for root, dirs, files in os.walk(rds_directory_full_path):
 
-    try:
-        file = os.path.abspath(os.path.join('rds_input', filename))
-        app_rds = pyreadr.read_r(file)
+    for file in files:
 
+        f_name = os.path.join(rds_directory_full_path, file)
+        app_rds = pyreadr.read_r(f_name)
         app_df = app_rds[None]
-        app_html = app_df.iloc[0,0]
+        app_html = app_df.iloc[0, 0]
 
         app_soup = BeautifulSoup(app_html, 'lxml')
 
-        apps.append(get_app_data(app_soup, filename))
-
-
-    except:
-        logging.warning(f'File: {file} failed to read.')
-        pass
+        apps.append(get_app_data(app_soup, f_name))
 
 
 fieldnames = list(apps[0].keys())
