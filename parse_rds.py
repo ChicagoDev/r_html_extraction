@@ -1,7 +1,6 @@
 from appstore_dom_selectors import *
 from bs4 import BeautifulSoup
-import os, sys
-import pprint
+import os
 import pyreadr
 import csv
 import logging

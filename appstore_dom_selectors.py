@@ -4,9 +4,12 @@ import logging
 
 logging.basicConfig(filename='logs/dom_selecting_log.txt', level=logging.DEBUG)
 
+
 num_re = re.compile('[0-9]+')
+
+
 hist_keys = ['percent_5_star', 'percent_4_star', 'percent_3_star', 'percent_2_star', 'percent_1_star']
-hist_nans = [float('nan') for _ in range(4)]
+hist_nans = [float('nan') for _ in range(5)]
 
 ## Get all the App Data into one object
 def get_app_data(app_soup, fs_identifier):
