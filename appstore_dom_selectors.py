@@ -13,6 +13,7 @@ def get_app_data(app_soup):
     app_features['app_description'] = get_app_description(app_soup)
     app_features['privacy_policy'] = get_app_privacy_policy(app_soup)
 
+
     for k, v in get_app_ratings_histogram(app_soup).items():
         app_features[k] = v
 
@@ -52,7 +53,7 @@ def get_app_info_fields_dict(app_store_soup):
     return dict(zip(info_fields, info_values))
 
 def get_app_ratings_histogram(app_store_soup):
-
+    # Selector is not picking up one one star!
     try:
         ratings_bar_graph = app_store_soup.find('figure', { 'class': 'we-star-bar-graph' })
         ratings_bars = ratings_bar_graph.find_all('div', { 'class': 'we-star-bar-graph__bar__foreground-bar' })
