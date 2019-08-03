@@ -11,7 +11,7 @@ rds_directory_full_path = '/Users/bjg/r_html/big_rds_input/appdescription'
 output_filename = 'output/appstore_data'
 
 #Alter this variable to change the batch size
-dump_threshold = 750
+dump_threshold = 40
 
 # Alter this variable to increase or decrease the sample size for testing.
 # If you do not want to test, and want to run on a full data-set,
@@ -47,8 +47,12 @@ for root, dirs, files in os.walk(rds_directory_full_path):
 
         #Get the field names
         fieldnames = list(get_app_data(app_soup, f_name).keys())
+
+        ## Add the app identifier as a field
+        fieldnames.insert(0, 'app_id')
+
         break
-    break
+    break # I think this is legacy, but don't want to try removing it now
 
 # Create the TSV file
 tsv_chunk_writer = csv.DictWriter(tsv_outfile, fieldnames=fieldnames, delimiter='\t')
@@ -62,6 +66,7 @@ apps = []
 for root, dirs, files in os.walk(rds_directory_full_path):
 
     for file in files:
+        app_identifier = file[1:]
 
         app_html = rds_to_html(file)
 
@@ -73,9 +78,14 @@ for root, dirs, files in os.walk(rds_directory_full_path):
         ##
         ## When we have accumulated a lot of files, Append them to the TSV.
         if len(apps) == dump_threshold:
+            # todo
+            #  print how many dumps have occured, and thus how many files processed.
             print(f'Met Dump Threshold with {len(apps)} files')
             #Do Dump to TSV
             for app in apps:
+
+                # Assign the App Identifier
+                app['app_id'] = app_identifier
 
                 # Need to create new file with updated headers
                 try:
@@ -90,6 +100,10 @@ for root, dirs, files in os.walk(rds_directory_full_path):
                     tsv_outfile = open(output_filename + '_' + str(output_filenum) + '.tsv', 'w')
 
                     fieldnames = list(app.keys())
+
+                    ## Add app identifier to fields
+                    fieldnames.insert(0, 'app_id')
+
                     tsv_chunk_writer = csv.DictWriter(tsv_outfile, fieldnames=fieldnames, delimiter='\t')
                     tsv_chunk_writer.writeheader()
                     tsv_chunk_writer.writerow(app)

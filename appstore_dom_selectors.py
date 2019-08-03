@@ -30,8 +30,8 @@ supported_info_fields = {'Seller': float('nan'),
 """
 def get_app_data(app_soup, fs_identifier):
 
-    logging.debug('----------------------------------------')
-    logging.info(f'Retrieving Dom Elements for {fs_identifier}')
+    #logging.debug('----------------------------------------')
+    #logging.info(f'Retrieving Dom Elements for {fs_identifier}')
 
 
     app_features = {}
