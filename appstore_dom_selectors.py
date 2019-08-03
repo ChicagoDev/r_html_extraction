@@ -11,11 +11,15 @@ num_re = re.compile('[0-9]+')
 hist_keys = ['percent_5_star', 'percent_4_star', 'percent_3_star', 'percent_2_star', 'percent_1_star']
 hist_nans = [float('nan') for _ in range(5)]
 
-## Get all the App Data into one object
+"""
+    This function aggregates all the app data using Beautiful Soup DOM traversal. 
+"""
 def get_app_data(app_soup, fs_identifier):
 
     logging.debug('----------------------------------------')
     logging.info(f'Retrieving Dom Elements for {fs_identifier}')
+
+
     app_features = {}
 
     app_features['app_name'] = get_app_name(app_soup)
@@ -23,7 +27,8 @@ def get_app_data(app_soup, fs_identifier):
     app_features['app_description'] = get_app_description(app_soup)
     app_features['privacy_policy'] = get_app_privacy_policy(app_soup)
 
-
+    # Need to unpack the results here to maintain a flat app_features dictionary
+    #
     for k, v in get_app_ratings_histogram(app_soup).items():
         app_features[k] = v
 
@@ -32,6 +37,10 @@ def get_app_data(app_soup, fs_identifier):
 
     return app_features
 
+"""
+    Below are all selectors using Beautiful Soup to extract AppStore information from the
+    supplied HTML
+"""
 
 def get_app_name(app_store_soup):
     try:
@@ -70,6 +79,12 @@ def get_app_info_fields_dict(app_store_soup):
         return dict(zip(info_fields, info_values))
 
     except:
+        """
+            I am not sure of what the behavior should be here. Because I know a dictionary of the exact same type
+            i.e. same keys, needs to be returned every time. In this case if something is missing, it may need 
+            more sophistocated error handling, or just need to implement float(nans) here and haven't had the chance 
+            yet. 
+        """
         raise Exception('Info Fields need to be identical.')
         #logging.warning(f'Information Fields NOT Found in DOM')
         #return
@@ -89,10 +104,18 @@ def get_app_ratings_histogram(app_store_soup):
         logging.warning(f'Histogram-Ratings NOT FOUND in DOM')
         return dict(zip(hist_keys, hist_nans))
 
+# Helper function
 def are_tags(potential_tags):
     return [_ if type(_) is Tag else None for _ in potential_tags]
 
+
+
 def get_developer_response(app_store_soup):
+
+    """
+
+    """
+
     try:
         dev_response_locators = app_store_soup.find_all('h3', {
             'class': 'we-customer-review__header we-customer-review__header--response' })
@@ -102,6 +125,7 @@ def get_developer_response(app_store_soup):
         reviews = []
 
         for bs4_item_list in dev_response_blockquotes:
+            # Only html tags, not BS4 Navigable Strings
             reviews += list(filter(lambda tag: (tag != None), bs4_item_list))
 
         reviews_text = [_.find('p').get_text() for _ in reviews]
