@@ -85,6 +85,7 @@ def get_app_info_fields_dict(app_store_soup):
     try:
         information_dl = app_store_soup.find('dl', attrs={'class': 'information-list information-list--app '
                                                                 'medium-columns'})
+
         info_fields = [ _.get_text() for _ in information_dl.find_all('dt')]
         info_values = [_.get_text().strip() for _ in information_dl.find_all('dd')]
         return dict(zip(info_fields, info_values))
@@ -96,6 +97,7 @@ def get_app_info_fields_dict(app_store_soup):
             more sophistocated error handling, or just need to implement float(nans) here and haven't had the chance 
             yet. 
         """
+
         logging.warning(f'Not all Info-Fields found in DOM')
         return nan_info_fields
 

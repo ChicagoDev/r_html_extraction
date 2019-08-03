@@ -14,6 +14,7 @@ dump_threshold = 500
 apps_read = 0
 
 rds_directory = rds_directory_full_path.split('/')[-1]
+
 logging.basicConfig(filename='logs/log.txt', level=logging.DEBUG)
 
 # Obtain the Field Names for TSV file
@@ -32,6 +33,7 @@ for root, dirs, files in os.walk(rds_directory_full_path):
         break
     break
 
+# Create the TSV file
 tsv_chunk_writer = csv.DictWriter(tsv_outfile, fieldnames=fieldnames, delimiter='\t')
 tsv_chunk_writer.writeheader()
 
@@ -39,15 +41,28 @@ tsv_chunk_writer.writeheader()
 ##
 apps = []
 
+## Open RDS File Convert to HTML
+def rds_to_html(file):
+
+    f_name = os.path.join(rds_directory_full_path, file)
+    app_rds = pyreadr.read_r(f_name)
+    app_df = app_rds[None]
+    app_html = app_df.iloc[0, 0]
+
+    return app_html
+
 #Parse the data
 for root, dirs, files in os.walk(rds_directory_full_path):
 
     for file in files:
 
-        f_name = os.path.join(rds_directory_full_path, file)
-        app_rds = pyreadr.read_r(f_name)
-        app_df = app_rds[None]
-        app_html = app_df.iloc[0, 0]
+
+        # f_name = os.path.join(rds_directory_full_path, file)
+        # app_rds = pyreadr.read_r(f_name)
+        # app_df = app_rds[None]
+        # app_html = app_df.iloc[0, 0]
+
+        app_html = rds_to_html(file)
 
         app_soup = BeautifulSoup(app_html, 'lxml')
 
@@ -66,6 +81,10 @@ for root, dirs, files in os.walk(rds_directory_full_path):
             #reset apps_read
             del apps[:]
             apps_read = 0
+
+## Dump the remaining files
+for app in apps:
+    tsv_chunk_writer.writerow(app)
 
 tsv_outfile.close()
 
