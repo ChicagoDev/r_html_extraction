@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup, Tag
 import re
 import logging
+import copy
 
 logging.basicConfig(filename='logs/dom_selecting_log.txt', level=logging.DEBUG)
 
@@ -11,7 +12,7 @@ num_re = re.compile('[0-9]+')
 hist_keys = ['percent_5_star', 'percent_4_star', 'percent_3_star', 'percent_2_star', 'percent_1_star']
 hist_nans = [float('nan') for _ in range(5)]
 
-nan_info_fields = {'Seller': float('nan'),
+supported_info_fields = {'Seller': float('nan'),
                            'Size': float('nan'),
                            'Category': float('nan'),
                            'Compatibility': float('nan'),
@@ -43,8 +44,10 @@ def get_app_data(app_soup, fs_identifier):
     for k, v in get_app_ratings_histogram(app_soup).items():
         app_features[k] = v
 
+
     for k, v in get_app_info_fields_dict(app_soup).items():
-        app_features[k] = v
+
+       app_features[k] = v
 
     return app_features
 
@@ -82,13 +85,26 @@ def get_app_privacy_policy(app_store_soup):
         return float('nan')
 
 def get_app_info_fields_dict(app_store_soup):
+
     try:
         information_dl = app_store_soup.find('dl', attrs={'class': 'information-list information-list--app '
                                                                 'medium-columns'})
 
         info_fields = [ _.get_text() for _ in information_dl.find_all('dt')]
         info_values = [_.get_text().strip() for _ in information_dl.find_all('dd')]
-        return dict(zip(info_fields, info_values))
+
+        info_not_all_fields = dict(zip(info_fields, info_values))
+        #return info_not_all_fields
+
+        app_info = copy.deepcopy(supported_info_fields)
+
+        for key in app_info.keys():
+
+            if key in info_not_all_fields.keys():
+
+                app_info[key] = info_not_all_fields[key]
+
+        return app_info
 
     except:
         """
@@ -99,7 +115,7 @@ def get_app_info_fields_dict(app_store_soup):
         """
 
         logging.warning(f'Not all Info-Fields found in DOM')
-        return nan_info_fields
+        return supported_info_fields
 
 def get_app_ratings_histogram(app_store_soup):
     # Selector is not picking up one one star!
