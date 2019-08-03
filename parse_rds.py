@@ -3,16 +3,18 @@ from bs4 import BeautifulSoup
 import os, sys
 import pyreadr
 import csv
-from pathlib import Path
+from pathlib import Path, WindowsPath
 
 # The directory where your .rds files are stored
 rds_directory_full_path = Path('/Users/bjg/r_html/big_rds_input/appdescription')
+#rds_directory_full_path = WindowsPath('/Users/bjg/r_html/big_rds_input/appdescription')
 
 # The desired output directory. Relative path.
 output_filename = Path('output/appstore_data.tsv')
+#output_filename = WindowsPath('output/appstore_data.tsv')
 
 #Alter this variable to change the batch size
-dump_threshold = 40
+dump_threshold = 100
 
 # Alter this variable to increase or decrease the sample size for testing.
 # If you do not want to test, and want to run on a full data-set,
@@ -70,11 +72,16 @@ for root, dirs, files in os.walk(rds_directory_full_path):
     for file in files:
         app_identifier = file[1:]
 
+
         app_html = rds_to_html(file)
 
         app_soup = BeautifulSoup(app_html, 'lxml')
 
-        apps.append(get_app_data(app_soup, f_name))
+        # Assign the App Identifier
+        app_data_dict = get_app_data(app_soup, f_name)
+        app_data_dict['app_id'] = app_identifier
+        apps.append(app_data_dict)
+
 
         ## File Writing Portion
         ##
@@ -86,8 +93,7 @@ for root, dirs, files in os.walk(rds_directory_full_path):
             #Do Dump to TSV
             for app in apps:
 
-                # Assign the App Identifier
-                app['app_id'] = app_identifier
+
 
                 # Need to create new file with updated headers
                 try:
@@ -120,10 +126,10 @@ for root, dirs, files in os.walk(rds_directory_full_path):
             del apps[:]
 
             #print(f'Decrementing stop number')
-            stop_number -= 1
+            #stop_number -= 1
 
-            if stop_number == 0:
-                sys.exit('Read in enough files')
+            #if stop_number == 0:
+            #    sys.exit('Read in enough files')
 
 
 ## Dump the remaining files
