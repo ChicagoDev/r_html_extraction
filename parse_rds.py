@@ -13,10 +13,8 @@ tsv_outfile = open(output_filename + '.tsv', 'w')
 
 #Value at which apps in memory should be appended to the tsv file
 #Or dumped to a new tsv file
-dump_threshold = 500
-apps_read = 0
-
-stop_number = 5
+dump_threshold = 750
+stop_number = 30
 
 rds_directory = rds_directory_full_path.split('/')[-1]
 
@@ -63,25 +61,17 @@ for root, dirs, files in os.walk(rds_directory_full_path):
 
     for file in files:
 
-
-        # f_name = os.path.join(rds_directory_full_path, file)
-        # app_rds = pyreadr.read_r(f_name)
-        # app_df = app_rds[None]
-        # app_html = app_df.iloc[0, 0]
-
         app_html = rds_to_html(file)
 
         app_soup = BeautifulSoup(app_html, 'lxml')
 
         apps.append(get_app_data(app_soup, f_name))
 
-        apps_read = apps_read + 1
-
         ## File Writing Portion
         ##
         ## When we have accumulated a lot of files, Append them to the TSV.
-        if apps_read == dump_threshold:
-            print(f'Met Dump Threshold')
+        if len(apps) == dump_threshold:
+            print(f'Met Dump Threshold with {len(apps)} files')
             #Do Dump to TSV
             for app in apps:
 
@@ -106,8 +96,8 @@ for root, dirs, files in os.walk(rds_directory_full_path):
 
             #reset apps_read
             del apps[:]
-            apps_read = 0
 
+            print(f'Decrementing stop number')
             stop_number -= 1
 
             if stop_number == 0:
