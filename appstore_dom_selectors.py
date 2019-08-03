@@ -11,6 +11,17 @@ num_re = re.compile('[0-9]+')
 hist_keys = ['percent_5_star', 'percent_4_star', 'percent_3_star', 'percent_2_star', 'percent_1_star']
 hist_nans = [float('nan') for _ in range(5)]
 
+nan_info_fields = {'Seller': float('nan'),
+                           'Size': float('nan'),
+                           'Category': float('nan'),
+                           'Compatibility': float('nan'),
+                           'Languages': float('nan'),
+                           'Age': float('nan'),
+                           'Rating': float('nan'),
+                           'Copyright': float('nan'),
+                           'Price': float('nan'),
+                           'In - App Purchases': float('nan')}
+
 """
     This function aggregates all the app data using Beautiful Soup DOM traversal. 
 """
@@ -85,9 +96,8 @@ def get_app_info_fields_dict(app_store_soup):
             more sophistocated error handling, or just need to implement float(nans) here and haven't had the chance 
             yet. 
         """
-        raise Exception('Info Fields need to be identical.')
-        #logging.warning(f'Information Fields NOT Found in DOM')
-        #return
+        logging.warning(f'Not all Info-Fields found in DOM')
+        return nan_info_fields
 
 def get_app_ratings_histogram(app_store_soup):
     # Selector is not picking up one one star!
