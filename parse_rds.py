@@ -63,6 +63,7 @@ tsv_chunk_writer.writeheader()
 apps = []
 
 #Parse the data
+iterations = 1
 for root, dirs, files in os.walk(rds_directory_full_path):
 
     for file in files:
@@ -78,9 +79,9 @@ for root, dirs, files in os.walk(rds_directory_full_path):
         ##
         ## When we have accumulated a lot of files, Append them to the TSV.
         if len(apps) == dump_threshold:
-            # todo
-            #  print how many dumps have occured, and thus how many files processed.
-            print(f'Met Dump Threshold with {len(apps)} files')
+
+            print(f'Processed Batch {iterations}, writing to file ...')
+
             #Do Dump to TSV
             for app in apps:
 
@@ -109,11 +110,15 @@ for root, dirs, files in os.walk(rds_directory_full_path):
                     tsv_chunk_writer.writerow(app)
 
 
+            print(f'\n{len(apps)} apps written to .tsv file.\n{dump_threshold*iterations} apps written in total.')
+            iterations += 1
+
+
 
             #reset apps_read
             del apps[:]
 
-            print(f'Decrementing stop number')
+            #print(f'Decrementing stop number')
             stop_number -= 1
 
             if stop_number == 0:
