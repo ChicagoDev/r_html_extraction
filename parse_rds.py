@@ -3,12 +3,13 @@ from bs4 import BeautifulSoup
 import os, sys
 import pyreadr
 import csv
+from pathlib import Path
 
 # The directory where your .rds files are stored
-rds_directory_full_path = '/Users/bjg/r_html/big_rds_input/appdescription'
+rds_directory_full_path = Path('/Users/bjg/r_html/big_rds_input/appdescription')
 
 # The desired output directory. Relative path.
-output_filename = 'output/appstore_data'
+output_filename = Path('output/appstore_data.tsv')
 
 #Alter this variable to change the batch size
 dump_threshold = 40
@@ -21,8 +22,8 @@ stop_number = 20
 ############################################################################################
 ### File-Configurations
 output_filenum = 0
-tsv_outfile = open(output_filename + '.tsv', 'w')
-rds_directory = rds_directory_full_path.split('/')[-1]
+tsv_outfile = open(output_filename, 'w')
+
 
 ## Open RDS File Convert to HTML
 def rds_to_html(file):
