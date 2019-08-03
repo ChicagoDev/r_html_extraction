@@ -3,22 +3,26 @@ from bs4 import BeautifulSoup
 import os, sys
 import pyreadr
 import csv
-import logging
 
+# The directory where your .rds files are stored
 rds_directory_full_path = '/Users/bjg/r_html/big_rds_input/appdescription'
 
+# The desired output directory. Relative path.
 output_filename = 'output/appstore_data'
+
+#Alter this variable to change the batch size
+dump_threshold = 750
+
+# Alter this variable to increase or decrease the sample size for testing.
+# If you do not want to test, and want to run on a full data-set,
+# Comment-out lines 102-106
+stop_number = 20
+
+############################################################################################
+### File-Configurations
 output_filenum = 0
 tsv_outfile = open(output_filename + '.tsv', 'w')
-
-#Value at which apps in memory should be appended to the tsv file
-#Or dumped to a new tsv file
-dump_threshold = 750
-stop_number = 30
-
 rds_directory = rds_directory_full_path.split('/')[-1]
-
-logging.basicConfig(filename='logs/log.txt', level=logging.DEBUG)
 
 ## Open RDS File Convert to HTML
 def rds_to_html(file):
@@ -53,8 +57,6 @@ tsv_chunk_writer.writeheader()
 ## Allocate list to hold all apps' data
 ##
 apps = []
-
-
 
 #Parse the data
 for root, dirs, files in os.walk(rds_directory_full_path):

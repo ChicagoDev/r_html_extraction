@@ -5,6 +5,8 @@ import copy
 
 logging.basicConfig(filename='logs/dom_selecting_log.txt', level=logging.DEBUG)
 
+## Toggle to disable logging and increase performance
+#logging.disable(level=logging.CRITICAL)
 
 num_re = re.compile('[0-9]+')
 
