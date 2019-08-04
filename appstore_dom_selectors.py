@@ -29,6 +29,9 @@ supported_info_fields = {'Seller': float('nan'),
                            'Age Rating': float('nan'),
                            'Copyright': float('nan'),
                            'Price': float('nan'),
+                           ### I made a mistake, the following should not be here. But it is working... because it is
+                         # forcing
+                         # the header... that is all this code really does
                            'has_in_app_purchases': False,
                            'review_1': float('nan'),
                            'review_2': float('nan'),
@@ -50,6 +53,7 @@ def get_app_data(app_soup, fs_identifier):
 
     app_features['app_name'] = get_app_name(app_soup)
     app_features['app_rating'] = get_app_rating(app_soup)
+    app_features['count_rating'] = get_rating_count(app_soup)
     app_features['app_description'] = get_app_description(app_soup)
     app_features['privacy_policy'] = get_app_privacy_policy(app_soup)
 
@@ -93,6 +97,17 @@ def get_app_rating(app_store_soup):
         return app_store_soup.find('span', class_='we-customer-ratings__averages__display').get_text()
     except:
         logging.warning(f'Rating NOT FOUND in DOM')
+        return float('nan')
+
+def get_rating_count(app_store_soup):
+    try:
+        num_rating = app_store_soup.find('figcaption', { 'class': 'we-rating-count star-rating__count' }).get_text(
+
+        ).split(',')[1].strip()
+        return re.search(num_re, num_rating).group(0)
+
+    except:
+        logging.warning(f'App not rated')
         return float('nan')
 
 def get_app_description(app_store_soup):
