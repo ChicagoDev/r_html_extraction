@@ -72,4 +72,5 @@ Retrieving single pieces of data with Beautiful Soup requires no further changes
 
 ## Platform Issues
 
-I have added WindowsPath options wherever paths occur in the code. In `parse_rds.py` and `rds_to_pandas_df.py`. 
+I have added WindowsPath options wherever paths occur in the code. In `parse_rds.py` and `rds_to_pandas_df.py`:
+* Currently lines 10-16 in `parse_rds.py` and 14-15 in `rds_to_pandas_df.py`
