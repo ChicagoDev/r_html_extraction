@@ -14,11 +14,12 @@ num_re = re.compile('[0-9]+')
 hist_keys = ['percent_5_star', 'percent_4_star', 'percent_3_star', 'percent_2_star', 'percent_1_star']
 hist_nans = [float('nan') for _ in range(5)]
 
-no_reviews = {'Review_1': float('nan'),
-                           'Review_2': float('nan'),
-                           'Review_3': float('nan')}
+no_reviews = {'review_1': float('nan'),
+                           'review_2': float('nan'),
+                           'review_3': float('nan')}
 
-review_keys = ['Review_1', 'Review_2', 'Review_3']
+review_keys = ['review_1', 'review_2', 'review_3']
+review_rating_keys = ['review_rating_1', 'review_rating_2', 'review_rating_3']
 
 supported_info_fields = {'Seller': float('nan'),
                            'Size': float('nan'),
@@ -29,9 +30,12 @@ supported_info_fields = {'Seller': float('nan'),
                            'Copyright': float('nan'),
                            'Price': float('nan'),
                            'has_in_app_purchases': False,
-                           'Review_1': float('nan'),
-                           'Review_2': float('nan'),
-                           'Review_3': float('nan')}
+                           'review_1': float('nan'),
+                           'review_2': float('nan'),
+                           'review_3': float('nan'),
+                           'review_rating_1': float('nan'),
+                           'review_rating_2': float('nan'),
+                           'review_rating_3': float('nan')}
 
 """
     This function aggregates all the app data using Beautiful Soup DOM traversal. 
@@ -63,6 +67,11 @@ def get_app_data(app_soup, fs_identifier):
         app_features[k] = v
 
     app_features['has_in_app_purchases'] = has_in_app_purchases(app_soup)
+
+    review_ratings = get_featured_review_ratings(app_soup)
+
+    for i, rating in enumerate(review_ratings):
+        app_features[review_rating_keys[i]] = rating
 
     return app_features
 
@@ -170,6 +179,19 @@ def get_app_reviews(app_store_soup):
     except:
         return no_reviews
 
+
+def get_featured_review_ratings(app_store_soup):
+
+    try:
+        featured_review_ratings = app_store_soup.find_all('figure', {
+            'class': 'we-star-rating ember-view we-customer-review__rating we-star-rating--large' })
+        featured_review_ratings = [_.attrs['aria-label'][0] for _ in featured_review_ratings]
+
+        return featured_review_ratings
+
+    except:
+        logging.warning(f'Review Ratings not Found')
+        return []
 
 def get_developer_response(app_store_soup):
 
