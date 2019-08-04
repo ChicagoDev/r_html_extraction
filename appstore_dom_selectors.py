@@ -18,6 +18,8 @@ no_reviews = {'Review_1': float('nan'),
                            'Review_2': float('nan'),
                            'Review_3': float('nan')}
 
+review_keys = ['Review_1', 'Review_2', 'Review_3']
+
 supported_info_fields = {'Seller': float('nan'),
                            'Size': float('nan'),
                            'Category': float('nan'),
@@ -152,18 +154,16 @@ def are_tags(potential_tags):
 
 
 def get_app_reviews(app_store_soup):
+
     try:
         reviews = [_.p.get_text() for _ in app_store_soup.find_all('blockquote', { 'class': 'we-truncate '
                                                                                    'we-truncate--multi-line '
                                                                                             'we-truncate--interactive ember-view we-customer-review__body' })]
-        # Assign Reviews to the nan Dictionary
-        for k, v in no_reviews.items():
 
-            if len(reviews) == 0:
-                break
+        the_reviews = {}
 
-            no_reviews[k] = reviews.pop(0)
-        the_reviews = no_reviews
+        for i, rev in enumerate(reviews):
+            the_reviews[review_keys[i]] = rev
 
         return the_reviews
 
