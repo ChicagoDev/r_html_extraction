@@ -7,10 +7,12 @@ from pathlib import Path
 
 # The directory where your .rds files are stored
 rds_directory_full_path = Path('/Users/bjg/r_html/big_rds_input/appdescription')
+###WINDOWS PATH UNTESTED
 #rds_directory_full_path = WindowsPath('/Users/bjg/r_html/big_rds_input/appdescription')
 
 # The desired output directory. Relative path.
 output_filename = Path('output/appstore_data.tsv')
+####WINDOWS PATH UNTESTED
 #output_filename = WindowsPath('output/_1st_big_run_appstore_data.tsv')
 
 #Alter this variable to change the batch size

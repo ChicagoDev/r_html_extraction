@@ -2,13 +2,17 @@ import pandas as pd
 from utils.rds_file_reader import rds_to_html
 from utils.appstore_dom_selectors import get_app_data
 from bs4 import BeautifulSoup
-from pathlib import Path
+from pathlib import Path, WindowsPath
 
 
 def parse_one_rds_file_to_html_extracted_pandas_df(file_name):
 
+
+
     rds_file_path = Path(file_name)
-    #rds_win_file_path = Path(file_name)
+
+    #WINDOWS PATH UNTESTED
+    #rds_file_path = WindowsPath(file_name)
 
     # The last part of the filename, ignoring the prefix-dot.
     app_identifier = rds_file_path.parts[-1]
