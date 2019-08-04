@@ -1,4 +1,4 @@
-# Converting HTML saved in .rds files into .tsv and Pands DataFrames
+# Converting HTML saved in .rds files into .tsv and Pandas DataFrames
 
 The single function to convert a .rds file to a Pandas DataFrame is in `utils/rds_to_pandas_df.py`. 
 
