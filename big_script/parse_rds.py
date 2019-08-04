@@ -1,9 +1,9 @@
-from appstore_dom_selectors import *
+from utils.appstore_dom_selectors import *
 from bs4 import BeautifulSoup
-import os, sys
+import os
 import pyreadr
 import csv
-from pathlib import Path, WindowsPath
+from pathlib import Path
 
 # The directory where your .rds files are stored
 rds_directory_full_path = Path('/Users/bjg/r_html/big_rds_input/appdescription')
@@ -11,15 +11,15 @@ rds_directory_full_path = Path('/Users/bjg/r_html/big_rds_input/appdescription')
 
 # The desired output directory. Relative path.
 output_filename = Path('output/appstore_data.tsv')
-#output_filename = WindowsPath('output/appstore_data.tsv')
+#output_filename = WindowsPath('output/_1st_big_run_appstore_data.tsv')
 
 #Alter this variable to change the batch size
-dump_threshold = 100
+dump_threshold = 500
 
 # Alter this variable to increase or decrease the sample size for testing.
 # If you do not want to test, and want to run on a full data-set,
 # Comment-out lines 102-106
-stop_number = 20
+stop_number = 10
 
 ############################################################################################
 ### File-Configurations
@@ -70,25 +70,32 @@ iterations = 1
 for root, dirs, files in os.walk(rds_directory_full_path):
 
     for file in files:
-        app_identifier = file[1:]
 
+        if '.rds' not in file:
+            print(file)
+            continue
 
-        app_html = rds_to_html(file)
+        try:
+            app_identifier = file[1:]
 
-        app_soup = BeautifulSoup(app_html, 'lxml')
+            app_html = rds_to_html(file)
 
-        # Assign the App Identifier
-        app_data_dict = get_app_data(app_soup, f_name)
-        app_data_dict['app_id'] = app_identifier
-        apps.append(app_data_dict)
+            app_soup = BeautifulSoup(app_html, 'lxml')
+
+            # Assign the App Identifier
+            app_data_dict = get_app_data(app_soup, f_name)
+            app_data_dict['app_id'] = app_identifier
+            apps.append(app_data_dict)
+        except:
+            continue
 
 
         ## File Writing Portion
         ##
         ## When we have accumulated a lot of files, Append them to the TSV.
-        if len(apps) == dump_threshold:
+        if len(apps) >= dump_threshold:
 
-            print(f'Processed Batch {iterations}, writing to file ...')
+            print(f'\nProcessed Batch {iterations}, writing to file ...')
 
             #Do Dump to TSV
             for app in apps:
@@ -117,7 +124,7 @@ for root, dirs, files in os.walk(rds_directory_full_path):
                     tsv_chunk_writer.writerow(app)
 
 
-            print(f'\n{len(apps)} apps written to .tsv file.\n{dump_threshold*iterations} apps written in total.')
+            print(f'\n{dump_threshold*iterations} apps written in total.')
             iterations += 1
 
 
@@ -129,10 +136,10 @@ for root, dirs, files in os.walk(rds_directory_full_path):
             #stop_number -= 1
 
             #if stop_number == 0:
-            #    sys.exit('Read in enough files')
+                #sys.exit('Read in enough files')
 
 
-## Dump the remaining files
+## Dump the remaining files if the threshold was not met exactly on the last iteration
 for app in apps:
     tsv_chunk_writer.writerow(app)
 
