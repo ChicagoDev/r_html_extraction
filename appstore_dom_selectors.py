@@ -23,11 +23,10 @@ supported_info_fields = {'Seller': float('nan'),
                            'Category': float('nan'),
                            'Compatibility': float('nan'),
                            'Languages': float('nan'),
-                           'Age': float('nan'),
-                           'Rating': float('nan'),
+                           'Age Rating': float('nan'),
                            'Copyright': float('nan'),
                            'Price': float('nan'),
-                           'In - App Purchases': float('nan'),
+                           'has_in_app_purchases': False,
                            'Review_1': float('nan'),
                            'Review_2': float('nan'),
                            'Review_3': float('nan')}
@@ -37,8 +36,8 @@ supported_info_fields = {'Seller': float('nan'),
 """
 def get_app_data(app_soup, fs_identifier):
 
-    #logging.debug('----------------------------------------')
-    #logging.info(f'Retrieving Dom Elements for {fs_identifier}')
+    logging.debug('\n----------------------------------------')
+    logging.info(f'Retrieving Dom Elements for {fs_identifier}')
 
 
     app_features = {}
@@ -61,6 +60,8 @@ def get_app_data(app_soup, fs_identifier):
     for k, v in get_app_reviews(app_soup).items():
         app_features[k] = v
 
+    app_features['has_in_app_purchases'] = has_in_app_purchases(app_soup)
+
     return app_features
 
 """
@@ -70,6 +71,7 @@ def get_app_data(app_soup, fs_identifier):
 
 def get_app_name(app_store_soup):
     try:
+        #h1 = app_store_soup.find('h1').text
         return app_store_soup.find('h1').text.strip().split('\n')[0]
     except:
         logging.warning(f'App-Name NOT FOUND in DOM')
@@ -169,7 +171,6 @@ def get_app_reviews(app_store_soup):
         return no_reviews
 
 
-
 def get_developer_response(app_store_soup):
 
     """
@@ -194,5 +195,19 @@ def get_developer_response(app_store_soup):
 
     except:
         logging.warning(f'Developer-Response NOT FOUND in DOM')
+        return float('nan')
+
+def has_in_app_purchases(app_store_soup):
+
+    try:
+        purchased_li_tag = app_store_soup.find('li', { 'class': 'app-header__list__item--in-app-purchase' })
+
+        if type(purchased_li_tag) == Tag:
+            return True
+        else:
+            return False
+
+    except:
+        logging.warning(f'Exception when searching for in-app purchases')
         return float('nan')
 
