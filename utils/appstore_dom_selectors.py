@@ -286,7 +286,10 @@ def has_in_app_purchases(app_store_soup):
         purchased_li_tag = app_store_soup.find('li', { 'class': 'app-header__list__item--in-app-purchase' })
 
         if type(purchased_li_tag) == Tag:
-            return True
+
+            in_app_purchased_string = purchased_li_tag.string       #.encode('utf-8')
+            return in_app_purchased_string
+
         else:
             return False
 
