@@ -6,9 +6,17 @@ import copy
 #logging.basicConfig(filename='logs/dom_selecting_log.txt', level=logging.DEBUG)
 
 ## Toggle to disable logging and increase performance
-#logging.disable(level=logging.CRITICAL)
+logging.disable(level=logging.CRITICAL)
 
-num_re = re.compile('[0-9]+')
+orig_num_re = re.compile('[0-9]+')
+rating_count_num_re = re.compile(r'[0-9.]+')
+is_millions = re.compile(r'[mM]')
+is_thousands = re.compile(r'[kK]')
+
+#Named Capture Groups Are't working for the time being
+# re.compile(r'(P?<FirstNumber>[0-9])+(?P<Decimal>[.])?(
+# ?P<SecondNumber>[0-9]+)?(?P<Power>[
+# kKmM)])?')
 
 
 hist_keys = ['percent_5_star', 'percent_4_star', 'percent_3_star', 'percent_2_star', 'percent_1_star']
@@ -53,7 +61,7 @@ def get_app_data(app_soup, fs_identifier):
 
     app_features['app_name'] = get_app_name(app_soup)
     app_features['app_rating'] = get_app_rating(app_soup)
-    app_features['count_rating'] = get_rating_count(app_soup)
+    app_features['review_count'] = get_rating_count(app_soup)
     app_features['app_description'] = get_app_description(app_soup)
     app_features['privacy_policy'] = get_app_privacy_policy(app_soup)
 
@@ -94,9 +102,44 @@ def get_app_name(app_store_soup):
 
 def get_app_rating(app_store_soup):
     try:
-        return app_store_soup.find('span', class_='we-customer-ratings__averages__display').get_text()
+        app_rating = app_store_soup.find('span', class_='we-customer-ratings__averages__display').get_text()
+        return app_rating
     except:
         logging.warning(f'Rating NOT FOUND in DOM')
+        return float('nan')
+
+
+def remove_deceimal(review_string):
+    return rating_count_num_re.search(review_string).group().replace('.', '')
+
+
+def convert_review_count_strings(review_string):
+    #One less zero, because decimal was removed earlier, and essentially moved to the right.
+
+    if is_millions.search(review_string) is not None:
+        try:
+            const = int(remove_deceimal(review_string))
+            review_count = const * 100000
+            return review_count
+
+        except:
+            return float('nan') #9999999
+
+    if is_thousands.search(review_string) is not None:
+        try:
+            const = int(remove_deceimal(review_string))
+            review_count = const * 100
+            return review_count
+
+        except:
+            return float('nan') #9999
+
+    if rating_count_num_re.search(review_string) is not None:
+        const = int(remove_deceimal(review_string))
+        review_count = const
+        return review_count
+
+    else:
         return float('nan')
 
 def get_rating_count(app_store_soup):
@@ -104,7 +147,10 @@ def get_rating_count(app_store_soup):
         num_rating = app_store_soup.find('figcaption', { 'class': 'we-rating-count star-rating__count' }).get_text(
 
         ).split(',')[1].strip()
-        return re.search(num_re, num_rating).group(0)
+
+        number_of_reviews = convert_review_count_strings(num_rating)
+
+        return number_of_reviews
 
     except:
         logging.warning(f'App not rated')
@@ -165,7 +211,7 @@ def get_app_ratings_histogram(app_store_soup):
 
         bar_attributes = [_.attrs for _ in ratings_bars]
 
-        star_rating_percentages = [re.search(num_re, _['style']).group(0) for _ in bar_attributes]
+        star_rating_percentages = [re.search(orig_num_re, _['style']).group(0) for _ in bar_attributes]
         return dict(zip(hist_keys, star_rating_percentages))
 
     except:
