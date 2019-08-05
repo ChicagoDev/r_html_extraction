@@ -1,2 +1,8 @@
 .idea/*
 big_rds_input/*
+*.tsv
+.DS_STORE
+logs
+output
+*.pyc
+.ipynb_checkpoints
