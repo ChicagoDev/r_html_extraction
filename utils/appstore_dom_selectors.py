@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup, Tag
 import re
 import logging
 import copy
+import json
 
 #logging.basicConfig(filename='logs/dom_selecting_log.txt', level=logging.DEBUG)
 
@@ -79,6 +80,8 @@ def get_app_data(app_soup, fs_identifier):
         app_features[k] = v
 
     app_features['has_in_app_purchases'] = has_in_app_purchases(app_soup)
+
+    app_features['in_app_purchase_details'] = get_in_app_purchase_details(app_soup)
 
     review_ratings = get_featured_review_ratings(app_soup)
 
@@ -169,6 +172,68 @@ def get_app_privacy_policy(app_store_soup):
     except:
         logging.warning(f'Privacy Policy NOT FOUND in DOM')
         return float('nan')
+#
+# def get_in_app_purchase_details(app_store_soup):
+#
+#     try:
+#         information_dl = app_store_soup.find('dl', attrs={'class': 'information-list information-list--app '
+#                                                                 'medium-columns'})
+#
+#         info_fields = [ _.get_text() for _ in information_dl.find_all('dt')]
+#
+#         if 'In-App Purchases' in info_fields:
+#
+#             info_values = [_.get_text().strip() for _ in information_dl.find_all('dd')]
+#             info_fields = dict(zip(info_fields, info_values))
+#
+#             app_purchases = info_fields['In-App Purchases']
+#
+#             individual_purchases = app_purchases.split('\n\n\n')
+#             purchase_names = [purchase.split('\n')[0] for purchase in individual_purchases]
+#             purchase_prices = [purchase.split('\n')[1] for purchase in individual_purchases]
+#
+#             app_purchases = dict(zip(purchase_names, purchase_prices))
+#             return app_purchases
+#
+#         else:
+#             return {float('nan'): ''}
+#
+#     except:
+#         logging.warning(f'No Information Field Found in DOM')
+#         return {float('nan'): float('nan')}
+#
+
+
+def get_in_app_purchase_details(app_store_soup):
+
+    try:
+        information_dl = app_store_soup.find('dl', attrs={'class': 'information-list information-list--app '
+                                                                'medium-columns'})
+
+        info_fields = [ _.get_text() for _ in information_dl.find_all('dt')]
+
+        if 'In-App Purchases' in info_fields:
+
+            info_values = [_.get_text().strip() for _ in information_dl.find_all('dd')]
+            info_fields = dict(zip(info_fields, info_values))
+
+            app_purchases = info_fields['In-App Purchases']
+
+            individual_purchases = app_purchases.split('\n\n\n')
+            purchase_names = [purchase.split('\n')[0] for purchase in individual_purchases]
+            purchase_prices = [purchase.split('\n')[1] for purchase in individual_purchases]
+
+            app_purchases = dict(zip(purchase_names, purchase_prices))
+            return json.dumps(app_purchases)
+
+        else:
+            return json.dumps({float('nan'): ''})
+
+    except:
+        logging.warning(f'No Information Field Found in DOM')
+        return json.dumps({float('nan'): float('nan')})
+
+
 
 def get_app_info_fields_dict(app_store_soup):
 
