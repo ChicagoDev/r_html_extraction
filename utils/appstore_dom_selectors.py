@@ -172,37 +172,6 @@ def get_app_privacy_policy(app_store_soup):
     except:
         logging.warning(f'Privacy Policy NOT FOUND in DOM')
         return float('nan')
-#
-# def get_in_app_purchase_details(app_store_soup):
-#
-#     try:
-#         information_dl = app_store_soup.find('dl', attrs={'class': 'information-list information-list--app '
-#                                                                 'medium-columns'})
-#
-#         info_fields = [ _.get_text() for _ in information_dl.find_all('dt')]
-#
-#         if 'In-App Purchases' in info_fields:
-#
-#             info_values = [_.get_text().strip() for _ in information_dl.find_all('dd')]
-#             info_fields = dict(zip(info_fields, info_values))
-#
-#             app_purchases = info_fields['In-App Purchases']
-#
-#             individual_purchases = app_purchases.split('\n\n\n')
-#             purchase_names = [purchase.split('\n')[0] for purchase in individual_purchases]
-#             purchase_prices = [purchase.split('\n')[1] for purchase in individual_purchases]
-#
-#             app_purchases = dict(zip(purchase_names, purchase_prices))
-#             return app_purchases
-#
-#         else:
-#             return {float('nan'): ''}
-#
-#     except:
-#         logging.warning(f'No Information Field Found in DOM')
-#         return {float('nan'): float('nan')}
-#
-
 
 def get_in_app_purchase_details(app_store_soup):
 
@@ -353,7 +322,8 @@ def has_in_app_purchases(app_store_soup):
         if type(purchased_li_tag) == Tag:
 
             in_app_purchased_string = purchased_li_tag.string       #.encode('utf-8')
-            return in_app_purchased_string
+
+            return True#in_app_purchased_string
 
         else:
             return False
